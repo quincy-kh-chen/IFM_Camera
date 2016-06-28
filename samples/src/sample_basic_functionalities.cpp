@@ -13,10 +13,10 @@ int o3d3xx_sample_basic_functionalities(void)
     unsigned int integrationTime = 800;
     std::vector<float> amp;
     std::vector<float> dist;
-	std::vector<unsigned> flags;
+	 std::vector<unsigned> flags;
 
-	std::vector<vector<float>> distances;
-	distances.resize(40);
+	 std::vector<vector<float>> distances;
+	 distances.resize(40);
 
     std::vector<vector<float>> intensity;
     intensity.resize(40);
@@ -25,12 +25,12 @@ int o3d3xx_sample_basic_functionalities(void)
     xyz3Dcoordinate.resize(40);
 
 	int imgHeight = 0;
-    int imgWidth = 0;
-    char err[256] = {0};
+   int imgWidth = 0;
+   char err[256] = {0};
 	std::string command = "";
-    char response[SOURCE_CMD_BUFFER_LENGTH] = {0};
-    bool filter = true;
-    bool resolution_100k = false;
+   char response[SOURCE_CMD_BUFFER_LENGTH] = {0};
+   bool filter = true;
+   bool resolution_100k = false;
 	bool savePointCloud = true;
 	bool saveIntensity = true;
 	bool saveDistances = true;
@@ -349,7 +349,7 @@ int o3d3xx_sample_basic_functionalities(void)
 				getchar();
 				return res;
 			}
-			cout << ii << " point cloud saved" << endl;
+			//cout << ii << " point cloud saved" << endl;
 		}
 
         // get intensity 
@@ -521,7 +521,7 @@ int o3d3xx_sample_basic_functionalities(void)
 			convert << ii;      // insert the textual representation of 'Number' in the characters in the stream
 			result = convert.str(); // set 'Result' to the contents of the stream
 
-			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\intensity_";
+			string filename = "c:\\Quincy\\IFM\\IFM_Camera\\Data\\intensity_wall_";
 			filename = filename + result + ".txt";
 
 			// ofstream myfile("c:\\temp\\point_cloud.txt");
@@ -560,7 +560,7 @@ int o3d3xx_sample_basic_functionalities(void)
 			convert << ff;      // insert the textual representation of 'Number' in the characters in the stream
 			result = convert.str(); // set 'Result' to the contents of the stream
 
-			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\point_cloud_";
+			string filename = "c:\\Quincy\\IFM\\IFM_Camera\\Data\\point_cloud_wall_";
 			filename = filename + result + ".txt";
 
 			// ofstream myfile("c:\\temp\\point_cloud.txt");
@@ -590,7 +590,7 @@ int o3d3xx_sample_basic_functionalities(void)
 			convert << ii;      // insert the textual representation of 'Number' in the characters in the stream
 			result = convert.str(); // set 'Result' to the contents of the stream
 
-			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\intensity_";
+			string filename = "c:\\Quincy\\IFM\\IFM_Camera\\Data\\distances_wall_";
 			filename = filename + result + ".txt";
 
 			// ofstream myfile("c:\\temp\\point_cloud.txt");

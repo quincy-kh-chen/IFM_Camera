@@ -12,8 +12,8 @@
 // If no application ID is provided in source params, a new application 
 // is created on connect, and deleted at disconnect.
 //#define CAMERA_IP_1 "192.168.0.69"
-#define CAMERA_IP_1 "169.254.48.238"
-//#define CAMERA_IP_1 "192.168.0.69"''
+//#define CAMERA_IP_1 "169.254.48.238"
+#define CAMERA_IP_1 "169.168.0.69"
 #define CAMERA_IP_2 "192.168.0.71"
 #define CAMERA_IP_3 "192.168.0.72"
 #define PCIC_PORT_NUMBER "80"
