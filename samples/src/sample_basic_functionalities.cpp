@@ -13,10 +13,14 @@ int o3d3xx_sample_basic_functionalities(void)
     unsigned int integrationTime = 800;
     std::vector<float> amp;
     std::vector<float> dist;
+	std::vector<unsigned> flags;
+
+	std::vector<vector<float>> distances;
+	distances.resize(40);
+
     std::vector<vector<float>> intensity;
     intensity.resize(40);
 
-    std::vector<unsigned> flags;
     std::vector<vector<float>> xyz3Dcoordinate;
     xyz3Dcoordinate.resize(40);
 
@@ -27,6 +31,9 @@ int o3d3xx_sample_basic_functionalities(void)
     char response[SOURCE_CMD_BUFFER_LENGTH] = {0};
     bool filter = true;
     bool resolution_100k = false;
+	bool savePointCloud = true;
+	bool saveIntensity = true;
+	bool saveDistances = true;
 
     printf ("\n =======================O3D300 Testing=========================");
     printf ("\n Connecting to camera: \n");
@@ -209,6 +216,11 @@ int o3d3xx_sample_basic_functionalities(void)
         dist.resize (imgWidth * imgHeight);
         amp.resize (imgWidth * imgHeight);
         flags.resize (imgWidth * imgHeight);
+
+		for (int ii = 0; ii < distances.size(); ++ii)
+		{
+			distances[ii].resize(imgWidth * imgHeight);
+		}
         
         for(int ii = 0 ; ii < intensity.size(); ++ii)
         {
@@ -270,17 +282,7 @@ int o3d3xx_sample_basic_functionalities(void)
 
       //   // printf ("\n Obtaining different image data from camera viz amplitude and Distance Image  \n");
 
-      //   res = pmdGetDistances (hnd, &dist[0], dist.size() * sizeof (float));
-      //   if (res != PMD_OK)
-      //   {
-      //       pmdGetLastError (hnd, err, 128);
-      //       fprintf (stderr, "Could not get distance data: \n%s\n", err);
-      //       pmdClose (hnd);
-    		// printf("Camera Connection Closed. \n");
-      //       getchar();
-      //       return res;
-      //   }
-      //   // printf ("\n Middle pixel Distance value: %fm\n", dist[ (imgHeight / 2) * imgWidth + imgWidth / 2]);
+    
 
       //   res = pmdGetAmplitudes (hnd, &amp[0], amp.size() * sizeof (float));
       //   if (res != PMD_OK)
@@ -315,24 +317,50 @@ int o3d3xx_sample_basic_functionalities(void)
         // xyz3Dcoordinate.resize(imgHeight * imgWidth * 3); // value three is for 3 images
         
         // std::vector<float> tempPointCloud;
-        // tempPointCloud.resize(imgHeight * imgWidth * 3); // value three is for 3 images      
-        pmdGet3DCoordinates (hnd, &xyz3Dcoordinate[ii][0], xyz3Dcoordinate[ii].size() * sizeof (float));
-        if (res != PMD_OK)
-        {
-            pmdGetLastError (hnd, err, 128);
-            fprintf (stderr, "Could not get xyz data: \n%s\n", err);
-            pmdClose (hnd);
-    		printf("Camera Connection Closed. \n");
-            getchar();
-            return res;
-        }
+        // tempPointCloud.resize(imgHeight * imgWidth * 3); // value three is for 3 images
 
-        cout << ii << " point cloud saved" << endl;
-        
-        // save gray scale frame 
-        pmdGetIntensities (hnd, &intensity[ii][0], intensity[ii].size() * sizeof (float));
 
+		// get distances
+		if (saveDistances)
+		{
+			res = pmdGetDistances(hnd, &dist[0], dist.size() * sizeof(float));
+			if (res != PMD_OK)
+			{
+				pmdGetLastError(hnd, err, 128);
+				fprintf(stderr, "Could not get distance data: \n%s\n", err);
+				pmdClose(hnd);
+				printf("Camera Connection Closed. \n");
+				getchar();
+				return res;
+			}
+			// printf ("\n Middle pixel Distance value: %fm\n", dist[ (imgHeight / 2) * imgWidth + imgWidth / 2]);
+		}
+
+		// get pointcloud
+		if (savePointCloud)
+		{
+			pmdGet3DCoordinates(hnd, &xyz3Dcoordinate[ii][0], xyz3Dcoordinate[ii].size() * sizeof(float));
+			if (res != PMD_OK)
+			{
+				pmdGetLastError(hnd, err, 128);
+				fprintf(stderr, "Could not get xyz data: \n%s\n", err);
+				pmdClose(hnd);
+				printf("Camera Connection Closed. \n");
+				getchar();
+				return res;
+			}
+			cout << ii << " point cloud saved" << endl;
+		}
+
+        // get intensity 
+		if (saveIntensity)
+		{
+			pmdGetIntensities(hnd, &intensity[ii][0], intensity[ii].size() * sizeof(float));
+		}
+
+		cout << " frame "  << ii << endl;
     }
+
     clock_t end_time = clock();
     cout << "time elapsed = " << float(end_time - begin_time)*1000/CLOCKS_PER_SEC << " ms" << endl;
 
@@ -484,66 +512,108 @@ int o3d3xx_sample_basic_functionalities(void)
  //    printf ("\n ================================================================================");
 
 /// save intensity
-        for(int ii = 0 ; ii < intensity.size() ; ++ii)
-        {
-            string result;          // string which will contain the result
-            ostringstream convert;   // stream used for the conversion
-            convert << ii;      // insert the textual representation of 'Number' in the characters in the stream
-            result = convert.str(); // set 'Result' to the contents of the stream
-            
-            string filename = "c:\\Users\\Jawbone\\Data\\IFM\\intensity_";
-            filename = filename + result + ".txt";
+	if (saveIntensity)
+	{
+		for (int ii = 0; ii < intensity.size(); ++ii)
+		{
+			string result;          // string which will contain the result
+			ostringstream convert;   // stream used for the conversion
+			convert << ii;      // insert the textual representation of 'Number' in the characters in the stream
+			result = convert.str(); // set 'Result' to the contents of the stream
 
-            // ofstream myfile("c:\\temp\\point_cloud.txt");
-            ofstream myfile(filename);
-            if (myfile.is_open())
-            {
-                // for (int ii = 0; ii < intensity.size(); ++ii)
-                // {
-                //     myfile << intensity[ii];
-                //     myfile << "\n";
-                // }
-                for (int hh = 0 ; hh < imgHeight ; ++hh)
-                {
-                   for (int ww = 0 ; ww < imgWidth ; ++ww)
-                   {
-                        myfile << intensity[ii][ww + hh*imgWidth];
-                        myfile << " ";
-                   }
-                    myfile << "\n";
-                }
-            }
+			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\intensity_";
+			filename = filename + result + ".txt";
 
-        }
+			// ofstream myfile("c:\\temp\\point_cloud.txt");
+			ofstream myfile(filename);
+			if (myfile.is_open())
+			{
+				// for (int ii = 0; ii < intensity.size(); ++ii)
+				// {
+				//     myfile << intensity[ii];
+				//     myfile << "\n";
+				// }
+				for (int hh = 0; hh < imgHeight; ++hh)
+				{
+					for (int ww = 0; ww < imgWidth; ++ww)
+					{
+						myfile << intensity[ii][ww + hh*imgWidth];
+						myfile << " ";
+					}
+					myfile << "\n";
+				}
+			}
+
+		}
+	}
 
 // save point clouds
-        for(int ff = 0 ; ff < xyz3Dcoordinate.size() ; ++ff)
-        {
-            // int numPoints = xyz3Dcoordinate[ff].size()/3;
-            // cout << "************** number of points = " << numPoints << " **************" << endl;
-            
-            string result;          // string which will contain the result
-            ostringstream convert;   // stream used for the conversion
-            convert << ff;      // insert the textual representation of 'Number' in the characters in the stream
-            result = convert.str(); // set 'Result' to the contents of the stream
-            
-            string filename = "c:\\Users\\Jawbone\\Data\\IFM\\point_cloud_";
-            filename = filename + result + ".txt";
+	if (savePointCloud)
+	{
+		for (int ff = 0; ff < xyz3Dcoordinate.size(); ++ff)
+		{
+			// int numPoints = xyz3Dcoordinate[ff].size()/3;
+			// cout << "************** number of points = " << numPoints << " **************" << endl;
 
-            // ofstream myfile("c:\\temp\\point_cloud.txt");
-            ofstream myfile(filename);
-            if (myfile.is_open())
-            {
-                for (int ii = 0; ii < xyz3Dcoordinate[ff].size(); ii += 3)
-                {
-                    myfile << xyz3Dcoordinate[ff][ii];
-                    myfile << " ";
-                    myfile << xyz3Dcoordinate[ff][ii+1];
-                    myfile << " ";
-                    myfile << xyz3Dcoordinate[ff][ii+2];
-                    myfile << "\n";
-                }
-            }
-        }
+			string result;          // string which will contain the result
+			ostringstream convert;   // stream used for the conversion
+			convert << ff;      // insert the textual representation of 'Number' in the characters in the stream
+			result = convert.str(); // set 'Result' to the contents of the stream
+
+			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\point_cloud_";
+			filename = filename + result + ".txt";
+
+			// ofstream myfile("c:\\temp\\point_cloud.txt");
+			ofstream myfile(filename);
+			if (myfile.is_open())
+			{
+				for (int ii = 0; ii < xyz3Dcoordinate[ff].size(); ii += 3)
+				{
+					myfile << xyz3Dcoordinate[ff][ii];
+					myfile << " ";
+					myfile << xyz3Dcoordinate[ff][ii + 1];
+					myfile << " ";
+					myfile << xyz3Dcoordinate[ff][ii + 2];
+					myfile << "\n";
+				}
+			}
+		}
+	}
+
+	// save distance
+	if (saveDistances)
+	{
+		for (int ii = 0; ii < distances.size(); ++ii)
+		{
+			string result;          // string which will contain the result
+			ostringstream convert;   // stream used for the conversion
+			convert << ii;      // insert the textual representation of 'Number' in the characters in the stream
+			result = convert.str(); // set 'Result' to the contents of the stream
+
+			string filename = "c:\\Users\\Jawbone\\Data\\IFM\\intensity_";
+			filename = filename + result + ".txt";
+
+			// ofstream myfile("c:\\temp\\point_cloud.txt");
+			ofstream myfile(filename);
+			if (myfile.is_open())
+			{
+				// for (int ii = 0; ii < intensity.size(); ++ii)
+				// {
+				//     myfile << intensity[ii];
+				//     myfile << "\n";
+				// }
+				for (int hh = 0; hh < imgHeight; ++hh)
+				{
+					for (int ww = 0; ww < imgWidth; ++ww)
+					{
+						myfile << intensity[ii][ww + hh*imgWidth];
+						myfile << " ";
+					}
+					myfile << "\n";
+				}
+			}
+
+		}
+	}
     return PMD_OK;
 }
