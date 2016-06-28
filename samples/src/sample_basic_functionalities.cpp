@@ -323,7 +323,7 @@ int o3d3xx_sample_basic_functionalities(void)
 		// get distances
 		if (saveDistances)
 		{
-			res = pmdGetDistances(hnd, &dist[0], dist.size() * sizeof(float));
+			res = pmdGetDistances(hnd, &distances[ii][0], distances[ii].size() * sizeof(float));
 			if (res != PMD_OK)
 			{
 				pmdGetLastError(hnd, err, 128);
