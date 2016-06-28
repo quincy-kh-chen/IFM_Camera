@@ -1,0 +1,52 @@
+#Sample Synchronous client using open source xmlrpc library
+
+# Set the project name
+SET(PROJ_NAME "SampleO3D3xxCamera")
+
+# Set the source and header file lists
+SET(CXXSOURCES ${CXXSOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_filter_functions.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_imager_functions.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_basic_functionalities.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_multicamera_connect.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_data_configuration.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/sample_pcic_commands.cpp)
+ 
+SET(HXXSOURCES ${HXXSOURCES}
+		${CMAKE_CURRENT_SOURCE_DIR}/include/sample.hpp)
+
+SET(INCLUDE_DIRS ${INCLUDE_DIRS}
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../source_plugin/include/)
+
+INCLUDE_DIRECTORIES(${INCLUDE_DIRS})
+
+ADD_EXECUTABLE(${PROJ_NAME}  ${CXXSOURCES} ${HXXSOURCES} )
+
+TARGET_LINK_LIBRARIES(${PROJ_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/pmdsdk/${PLATFORM}/lib/pmdaccess2.lib)
+
+ADD_DEPENDENCIES(${PROJ_NAME} ${PROJECT_NAME}Camera ${PROJECT_NAME}Proc)
+
+SET(OUTFILE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Sample/pmdaccess2.dll")
+IF(WIN32)
+  IF(NOT ${CMAKE_GENERATOR} STREQUAL "NMake Makefiles")
+    SET(OUTFILE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Sample/pmdaccess2.dll)
+  ENDIF()
+ENDIF()
+	ADD_CUSTOM_COMMAND(TARGET ${PROJ_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/pmdsdk/${PLATFORM}/bin/pmdaccess2.dll ${OUTFILE} )
+
+	ADD_CUSTOM_COMMAND(TARGET ${PROJ_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy "${BINARY_OUTPUT_PATH}/$<CONFIGURATION>/${PROJ_NAME}.exe" "${BINARY_OUTPUT_PATH}/$<CONFIGURATION>/Sample/${PROJ_NAME}.exe ")
+	
+	ADD_CUSTOM_COMMAND(TARGET ${PROJ_NAME}  POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+				"${BINARY_OUTPUT_PATH}/$<CONFIGURATION>/Plugins/${PROJECT_NAME}Camera.W${BITNESS}.pap"
+				"${BINARY_OUTPUT_PATH}/$<CONFIGURATION>/Sample/${PROJECT_NAME}Camera.W${BITNESS}.pap"
+				)	
+				
+	ADD_CUSTOM_COMMAND(TARGET ${PROJ_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E remove -f
+				"${BINARY_OUTPUT_PATH}/$<CONFIGURATION>/${PROJ_NAME}.exe")
+	
