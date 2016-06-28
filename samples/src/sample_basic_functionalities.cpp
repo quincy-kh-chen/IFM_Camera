@@ -606,7 +606,7 @@ int o3d3xx_sample_basic_functionalities(void)
 				{
 					for (int ww = 0; ww < imgWidth; ++ww)
 					{
-						myfile << intensity[ii][ww + hh*imgWidth];
+						myfile << distances[ii][ww + hh*imgWidth];
 						myfile << " ";
 					}
 					myfile << "\n";
